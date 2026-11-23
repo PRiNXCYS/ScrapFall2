@@ -520,6 +520,8 @@ func _unhandled_input(ev: InputEvent) -> void:
 
 
 func _notification(what: int) -> void:
+	if _shot_after >= 0:
+		return  # dev screenshot runs must not pause when the window loses focus
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		_set_paused(true)
 
