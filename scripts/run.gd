@@ -45,6 +45,7 @@ var _shot_path := ""
 var _shot_after := -1
 var _frame := 0
 var _slot_guns: Array[Turret] = []
+var _showcase := false  # dev: a ready-made camp for screenshots
 
 
 func _ready() -> void:
@@ -102,6 +103,11 @@ func _apply_flags() -> void:
 			camp.scrap = 60
 		elif a == "--stop":
 			next_stop = 0.0
+		elif a == "--showcase":
+			_showcase = true
+		elif a == "--clean":  # dev: no HUD or buttons (promo screenshots)
+			hud.visible = false
+			controls.visible = false
 
 
 # ------------------------------------------------------------------ world
@@ -277,7 +283,7 @@ func _step_camp(dt: float) -> void:
 	for s in skitters:
 		if s.brain.state == SkitterBrain.State.ON_TRUCK:
 			truck.drive.damage(SkitterBrain.CLIMB_DPS * dt)
-	if wave_spawned and skitters.is_empty() and cycle.phase == DayCycle.Phase.NIGHT:
+	if wave_spawned and skitters.is_empty() and cycle.phase == DayCycle.Phase.NIGHT and not _showcase:
 		cycle.skip_to_dawn()
 		camp.scrap += DAWN_BONUS
 		phase_log.append("DAWN")
@@ -291,6 +297,20 @@ func _begin_night() -> void:
 	cam.set_drive_mode(CameraRig.Mode.TOPDOWN)
 	build_left = Camp.BUILD_SECONDS
 	wave_spawned = false
+	if _showcase:
+		camp.scrap = 400
+		for c in [Vector2i(3, -3), Vector2i(-4, -3), Vector2i(3, 3), Vector2i(-4, 3), Vector2i(0, 5), Vector2i(-1, -6)]:
+			camp.place("gun", c)
+		for x in range(-5, 5):
+			camp.place("wall", Vector2i(x, 6))
+			camp.place("wall", Vector2i(x, -7))
+		for z in range(-6, 6):
+			camp.place("wall", Vector2i(5, z))
+			camp.place("wall", Vector2i(-6, z))
+		camp_view.refresh()
+		for s2 in truck.tower_slots:
+			place_at(s2.global_position)
+		build_left = 1.0
 
 
 func _start_wave() -> void:
