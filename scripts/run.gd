@@ -8,8 +8,11 @@ const STOP_EVERY := 1500.0
 const STOP_REACH := 20.0
 const PLAYER_HIT_DPS := 8.0
 const DAWN_BONUS := 10
+const MAX_SKITTERS := 40  # phones: cap what is alive at once
+const SLOT_REACH := 1.6
 const FOOT_SKITTER_SPEED := Vector2(4.0, 6.0)  # on foot they walk; on the road they sprint
 
+var mouse_fire := false  # a real mouse button, not a finger emulated as one
 var manual := false  # tests call step() themselves
 var invincible := false
 var phase_log: Array[String] = []
@@ -241,7 +244,7 @@ func _step_foot(dt: float) -> void:
 	player.look_input(controls.take_look())
 	player.tick(dt)
 	var brains := _brains()
-	if controls.fire_held() or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+	if controls.fire_held() or mouse_fire:
 		player.fire(brains)
 	var got := site.loot_near(player.global_position)
 	if got > 0:
@@ -358,6 +361,8 @@ func _die() -> void:
 # ------------------------------------------------------------------ helpers
 
 func _spawn_skitter(at: Vector3) -> void:
+	if skitters.size() >= MAX_SKITTERS:
+		return
 	var s := Skitter.new()
 	s.brain.pos = at
 	s.brain.spd = rng.randf_range(15.0, 21.0)
@@ -459,7 +464,22 @@ func _on_tap(at: Vector2) -> void:
 		return
 	var hit := from + dir * (-from.y / dir.y)
 	camp_view.hover(hit)
-	camp_view.try_place(hit)
+	place_at(hit)
+
+
+## Camp build at a world point: a truck slot if you tapped one, otherwise the ground grid.
+func place_at(world: Vector3) -> bool:
+	for i in truck.tower_slots.size():
+		var sp := truck.tower_slots[i].global_position
+		if Vector2(sp.x - world.x, sp.z - world.z).length() <= SLOT_REACH:
+			if not camp.slot_place(i, "gun"):
+				return false
+			var g := Turret.new()
+			g.configure(0.25, 1.0, 26.0)
+			truck.tower_slots[i].add_child(g)
+			_slot_guns.append(g)
+			return true
+	return camp_view.try_place(world)
 
 
 func _unhandled_input(ev: InputEvent) -> void:
@@ -473,12 +493,14 @@ func _unhandled_input(ev: InputEvent) -> void:
 			KEY_R: if dead: hud.retry.emit()
 			KEY_1: camp_view.selected = "gun"
 			KEY_2: camp_view.selected = "wall"
+	if ev is InputEventMouseButton and ev.button_index == MOUSE_BUTTON_LEFT and ev.device != InputEvent.DEVICE_ID_EMULATION:
+		mouse_fire = ev.pressed
 	if ev is InputEventMouseMotion and mode == "foot" and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		player.look_input(ev.relative)
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		_set_paused(true)
 
 
@@ -487,3 +509,4 @@ func _set_paused(on: bool) -> void:
 		return
 	get_tree().paused = on
 	hud.set_paused(on)
+	controls.release_all()

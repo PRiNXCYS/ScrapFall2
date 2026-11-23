@@ -32,12 +32,14 @@ func _ready() -> void:
 	_flash.light_color = Color(1, .8, .4)
 	_flash.omni_range = 7
 	_flash.light_energy = 0.0
+	_flash.visible = false
 	_muzzle.add_child(_flash)
 
 
 func tick(dt: float, brains: Array) -> void:
 	_fire_t -= dt
 	_flash.light_energy = maxf(0.0, _flash.light_energy - dt * 60.0)
+	_flash.visible = _flash.light_energy > 0.0
 	var target := Targeting.pick(global_position, brains, gun_range)
 	if target == null:
 		return
@@ -51,5 +53,6 @@ func tick(dt: float, brains: Array) -> void:
 		shots += 1
 		Fx.tracer(get_tree().root, _muzzle.global_position, tp)
 		_flash.light_energy = 4.0
+		_flash.visible = true
 		if target.hit(damage):
 			kills += 1

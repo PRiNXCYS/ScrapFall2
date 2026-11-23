@@ -2,6 +2,9 @@
 class_name Fx
 extends RefCounted
 
+const MAX_LIGHTS := 2  # phones: flashes are expensive, keep at most two alive
+static var _lights := 0
+
 
 static func explode(parent: Node, at: Vector3, big := true) -> void:
 	var p := CPUParticles3D.new()
@@ -26,7 +29,11 @@ static func explode(parent: Node, at: Vector3, big := true) -> void:
 	p.global_position = at
 	p.emitting = true
 	_free_later(p, 1.4)
+	if _lights >= MAX_LIGHTS:
+		return
+	_lights += 1
 	var l := OmniLight3D.new()
+	l.tree_exiting.connect(func() -> void: _lights -= 1)
 	l.light_color = Color(1, .6, .25)
 	l.light_energy = 5.0
 	l.omni_range = 8

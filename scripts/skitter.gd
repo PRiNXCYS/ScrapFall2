@@ -30,6 +30,9 @@ func _ready() -> void:
 			Art.box(pivot, Vector3(1.1, .16, .16), "steel", Vector3(sd * .5, .1, 0), Vector3(0, 0, sd * -.5))
 			Art.box(pivot, Vector3(.16, 1.0, .16), "steel", Vector3(sd * 1.0, -.35, 0))
 			_legs.append(pivot)
+	for leg in _legs:
+		Art.merge(leg, false, false)
+	Art.merge(self, false)  # body, plate and eyes: three meshes instead of five
 
 
 ## Moves the model to the brain's position; hops onto the truck body when it climbs.

@@ -40,6 +40,7 @@ func _add_chunk(z: float) -> void:
 			Art.part(c, Art.rock_mesh(0.3 + 0.03 * ((i * 7 + _count) % 6)), "sand_d", Vector3(side * (RoadPlan.ROAD_W / 2 + 0.6), 0.1, -RoadPlan.CHUNK / 2 + i * 7.5))
 	for p in plan.prop_layout(_seed * 1000 + _count):
 		_prop(c, p)
+	Art.merge(c)  # one mesh per colour per chunk
 	_count += 1
 	chunk_nodes.append(c)
 

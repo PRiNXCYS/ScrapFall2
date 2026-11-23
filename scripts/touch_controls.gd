@@ -83,14 +83,21 @@ func handle(ev: InputEvent) -> bool:
 	return false
 
 
+## Forget every finger (after a pause the lift events never arrived).
+func release_all() -> void:
+	_touches.clear()
+	_look = Vector2.ZERO
+	queue_redraw()
+
+
 ## -1..1, positive = left. Drive mode: a thumb held on the left/right half (not on a button).
 func steer() -> float:
 	if mode != "drive":
 		return 0.0
 	var s := 0.0
 	for t in _touches.values():
-		if t["on"] == "":
-			s += 1.0 if t["pos"].x < size.x / 2 else -1.0
+		if t["on"] == "":  # outer-left quarter steers left; everywhere else steers right (so boost + right works)
+			s += 1.0 if t["pos"].x < size.x * 0.25 else -1.0
 	return clampf(s, -1.0, 1.0)
 
 

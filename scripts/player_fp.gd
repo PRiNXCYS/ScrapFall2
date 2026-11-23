@@ -37,6 +37,7 @@ func _ready() -> void:
 	_flash.light_color = Color(1, .8, .4)
 	_flash.omni_range = 6
 	_flash.light_energy = 0.0
+	_flash.visible = false
 	_flash.position = Vector3(0, 0, -0.45)
 	_gun.add_child(_flash)
 
@@ -60,6 +61,7 @@ func fire(brains: Array) -> SkitterBrain:
 		return null
 	_fire_t = FIRE_EVERY
 	_flash.light_energy = 4.0
+	_flash.visible = true
 	var eye := head.global_position
 	var target := AimAssist.pick(eye, forward(), brains)
 	var end := eye + forward() * 40.0
@@ -73,6 +75,7 @@ func fire(brains: Array) -> SkitterBrain:
 func tick(dt: float) -> void:
 	_fire_t = maxf(0.0, _fire_t - dt)
 	_flash.light_energy = maxf(0.0, _flash.light_energy - dt * 60.0)
+	_flash.visible = _flash.light_energy > 0.0
 	var b := global_transform.basis
 	var dir := (-b.z * _move.y + b.x * _move.x)
 	dir.y = 0

@@ -92,3 +92,33 @@ static func rock_mesh(r: float) -> Mesh:
 	s.radial_segments = 7
 	s.rings = 3
 	return s
+
+
+## Phones: bake every MeshInstance3D under `root` into one mesh per material (fewer draw calls).
+## `recursive=false` only merges direct children (keeps animated sub-nodes like legs separate).
+static func merge(root: Node3D, recursive := true, cast_shadows := true) -> void:
+	var groups := {}  # material -> SurfaceTool
+	var done: Array[Node] = []
+	var found: Array = root.find_children("*", "MeshInstance3D", recursive, false)
+	for mi in found:
+		var xf := Transform3D.IDENTITY
+		var n: Node = mi
+		while n != root:
+			xf = (n as Node3D).transform * xf
+			n = n.get_parent()
+		var m: Material = mi.material_override
+		if not groups.has(m):
+			var st := SurfaceTool.new()
+			st.begin(Mesh.PRIMITIVE_TRIANGLES)
+			groups[m] = st
+		groups[m].append_from(mi.mesh, 0, xf)
+		done.append(mi)
+	for mi in done:
+		mi.get_parent().remove_child(mi)
+		mi.free()
+	for m in groups:
+		var out := MeshInstance3D.new()
+		out.mesh = groups[m].commit()
+		out.material_override = m
+		out.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if cast_shadows else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(out)
