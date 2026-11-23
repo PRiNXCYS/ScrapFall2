@@ -7,6 +7,7 @@ var damage := 1.0
 var gun_range := 30.0
 var shots := 0
 var kills := 0
+var detail_parts := 0
 var _fire_t := 0.0
 var _head: Node3D
 var _muzzle: Node3D
@@ -20,13 +21,15 @@ func configure(every: float, dmg: float, rng: float) -> void:
 
 
 func _ready() -> void:
+	var base := Node3D.new()
+	add_child(base)
 	_head = Node3D.new()
 	add_child(_head)
-	Art.box(_head, Vector3(1.3, .6, 1.3), "steel", Vector3(0, .3, 0))
-	Art.box(_head, Vector3(.3, .3, 2.2), "steel", Vector3(-.25, .55, 1.1))
-	Art.box(_head, Vector3(.3, .3, 2.2), "steel", Vector3(.25, .55, 1.1))
+	detail_parts = M2Model.build(base, _head)
+	Art.merge(base, true, false)
+	Art.merge(_head, true, false)
 	_muzzle = Node3D.new()
-	_muzzle.position = Vector3(0, .55, 2.3)
+	_muzzle.position = M2Model.muzzle()
 	_head.add_child(_muzzle)
 	_flash = OmniLight3D.new()
 	_flash.light_color = Color(1, .8, .4)
