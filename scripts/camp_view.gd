@@ -67,7 +67,7 @@ func hover(world: Vector3) -> void:
 	var c := camp.cell_of(world)
 	_ghost.visible = true
 	_ghost.global_position = camp.cell_center(c) + Vector3(0, 0.1, 0)
-	var ok := camp.can_place(c) and camp.scrap >= Camp.COST[selected]
+	var ok: bool = camp.can_place(c) and camp.scrap >= Camp.COST[selected]
 	_ghost.material_override = Art.mat("ghost_ok" if ok else "ghost_bad")
 
 

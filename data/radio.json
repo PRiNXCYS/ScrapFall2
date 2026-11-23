@@ -1,0 +1,8 @@
+{
+ "start": [["MARA", "Keeper. It's Mara. I can see the whole road from up here."], ["MARA", "Machines ahead. Skitters. Keep the truck moving."], ["TEO", "Gun's on auto. You just drive. And ram anything that climbs on!"]],
+ "swarm": [["MARA", "Big swarm behind that ridge. Brace!"], ["MARA", "Lots of them, Keeper. Boost through!"], ["TEO", "They're climbing out of the sand ahead!"]],
+ "dusk": [["MARA", "Sun's going down. Park it and dig in."], ["TEO", "Night's coming. Build walls, put guns out. Fast."]],
+ "dawn": [["MARA", "Dawn. You made it. Drive on, Keeper."], ["TEO", "Sun's up! They're running back into the sand."]],
+ "stop": [["MARA", "Scrap yard on your right. Worth a look."], ["TEO", "Pull over there. We need parts."]],
+ "dead": [["TEO", "We're overrun! Keeper, get out of there!"]]
+}

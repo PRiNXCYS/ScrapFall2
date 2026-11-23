@@ -53,3 +53,13 @@ func test_enter_and_leave_truck() -> void:
 	assert_true(StopRules.try_end_stop(drive, cam, Vector3(2.5, 0, 0), Vector3.ZERO), "next to the truck")
 	assert_true(not drive.parked, "driving")
 	assert_eq(cam.mode, CameraRig.Mode.CHASE, "back to the chase camera")
+
+
+func test_camera_faces_where_you_shoot() -> void:
+	var p := PlayerFP.new()
+	tree.root.add_child(p)
+	nodes.append(p)
+	p.rotation.y = -PI / 2
+	var cam_forward := -p.head.global_transform.basis.z
+	assert_true(p.forward().is_equal_approx(cam_forward), "shooting direction = camera direction")
+	assert_true(p.forward().x > 0.99, "rotation -PI/2 faces +x, got %s" % p.forward())

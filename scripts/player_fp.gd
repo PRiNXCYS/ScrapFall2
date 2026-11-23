@@ -29,15 +29,15 @@ func _ready() -> void:
 	head.position.y = 1.6
 	add_child(head)
 	_gun = Node3D.new()
-	_gun.position = Vector3(0.3, -0.28, 0.5)
+	_gun.position = Vector3(0.3, -0.28, -0.5)
 	head.add_child(_gun)
 	Art.box(_gun, Vector3(0.12, 0.14, 0.7), "steel", Vector3.ZERO)
-	Art.box(_gun, Vector3(0.1, 0.2, 0.12), "rust_d", Vector3(0, -0.12, -0.15))
+	Art.box(_gun, Vector3(0.1, 0.2, 0.12), "rust_d", Vector3(0, -0.12, 0.15))
 	_flash = OmniLight3D.new()
 	_flash.light_color = Color(1, .8, .4)
 	_flash.omni_range = 6
 	_flash.light_energy = 0.0
-	_flash.position = Vector3(0, 0, 0.45)
+	_flash.position = Vector3(0, 0, -0.45)
 	_gun.add_child(_flash)
 
 
@@ -51,7 +51,7 @@ func look_input(d: Vector2) -> void:
 
 
 func forward() -> Vector3:
-	return head.global_transform.basis.z
+	return -head.global_transform.basis.z  # cameras look along -Z
 
 
 ## Fires at the aim-assisted target if there is one; returns the brain that was hit (or null).
@@ -74,7 +74,7 @@ func tick(dt: float) -> void:
 	_fire_t = maxf(0.0, _fire_t - dt)
 	_flash.light_energy = maxf(0.0, _flash.light_energy - dt * 60.0)
 	var b := global_transform.basis
-	var dir := (b.z * _move.y + -b.x * _move.x)
+	var dir := (-b.z * _move.y + b.x * _move.x)
 	dir.y = 0
 	velocity = dir * MOVE_SPEED
 	move_and_slide()
